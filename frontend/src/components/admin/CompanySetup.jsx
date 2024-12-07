@@ -1,17 +1,19 @@
-import React, { useEffect } from 'react'
-import Navbar from '../shared/Navbar';
-import { Input } from '../ui/input';
-import { Button } from '../ui/button';
-import { ArrowLeft } from 'lucide-react';
-import { Label } from '../ui/label';
-import { useState } from 'react';
-import axios from 'axios';
-import { COMPANY_API_END_POINT } from '@/utils/constant';
-import { useNavigate, useParams } from 'react-router-dom';
-import { toast } from 'sonner';
-import { useSelector } from 'react-redux';
+import React, { useEffect, useState } from 'react'
+import Navbar from '../shared/Navbar'
+import { Button } from '../ui/button'
+import { ArrowLeft, Loader2 } from 'lucide-react'
+import { Label } from '../ui/label'
+import { Input } from '../ui/input'
+import axios from 'axios'
+import { COMPANY_API_END_POINT } from '@/utils/constant'
+import { useNavigate, useParams } from 'react-router-dom'
+import { toast } from 'sonner'
+import { useSelector } from 'react-redux'
+import useGetCompanyById from '@/hooks/useGetCompanyById'
 
 const CompanySetup = () => {
+    const params = useParams();
+    useGetCompanyById(params.id);
     const [input, setInput] = useState({
         name: "",
         description: "",
@@ -19,10 +21,8 @@ const CompanySetup = () => {
         location: "",
         file: null
     });
-
     const {singleCompany} = useSelector(store=>store.company);
     const [loading, setLoading] = useState(false);
-    const params = useParams();
     const navigate = useNavigate();
 
     const changeEventHandler = (e) => {
@@ -31,7 +31,7 @@ const CompanySetup = () => {
 
     const changeFileHandler = (e) => {
         const file = e.target.files?.[0];
-        setInput({...input, file});
+        setInput({ ...input, file });
     }
 
     const submitHandler = async (e) => {
@@ -41,26 +41,25 @@ const CompanySetup = () => {
         formData.append("description", input.description);
         formData.append("website", input.website);
         formData.append("location", input.location);
-
-        if(input.file){
+        if (input.file) {
             formData.append("file", input.file);
         }
         try {
             setLoading(true);
             const res = await axios.put(`${COMPANY_API_END_POINT}/update/${params.id}`, formData, {
-                headers:{
-                    'Content-Type':'multipart/form-data'
+                headers: {
+                    'Content-Type': 'multipart/form-data'
                 },
-                withCredentials:true
+                withCredentials: true
             });
-            if(res.data.success){
+            if (res.data.success) {
                 toast.success(res.data.message);
                 navigate("/admin/companies");
             }
         } catch (error) {
             console.log(error);
             toast.error(error.response.data.message);
-        } finally{
+        } finally {
             setLoading(false);
         }
     }
@@ -134,12 +133,13 @@ const CompanySetup = () => {
                         </div>
                     </div>
                     {
-                        loading? <Button className="w-full my-4"><Loader2 className="mr-2 h-4 w-4 animate-spin"/>Please wait</Button>: <Button type="submit" className="w-full my-4">Update</Button>
+                        loading ? <Button className="w-full my-4"> <Loader2 className='mr-2 h-4 w-4 animate-spin' /> Please wait </Button> : <Button type="submit" className="w-full my-4">Update</Button>
                     }
                 </form>
             </div>
+
         </div>
     )
 }
 
-export default CompanySetup;
+export default CompanySetup
