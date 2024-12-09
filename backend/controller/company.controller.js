@@ -40,12 +40,12 @@ export const getCompany = async (req,res) =>{
         if(!companies){
             return res.status(404).json({
                 message:"Companies not found",
-                status:false
+                success:false
             })
         }
         return res.status(200).json({
             companies,
-            status:true
+            success:true
         });
     }
     catch(error){
